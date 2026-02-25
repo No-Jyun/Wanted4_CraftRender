@@ -1,6 +1,4 @@
-#include <windows.h>
-#include <string>
-#include <stdint.h>
+#include "Core/Win32Window.h"
 
 // 콜백 함수
 // 창 메시지 처리할 때 사용
@@ -12,72 +10,24 @@ int main()
     // 창 (Window) 을 생성하고, API를 활용해서 창에 그림을 그리는 프로그램
     // Win32 API 활용 (창을 만드는 API)
     
-    // 운영체제에 창 등록할 때 사용할 클래스 이름 - 유일해야함
     std::wstring className = L"Craft Engine Window";
     std::wstring title = L"Craft Engine";
     
     // 클라이언트 영역 창 크기
     uint32_t width = 1280;
     uint32_t height = 800;
-
-    // 창 생성에 필요한 정보(구조체) 채우기
+    
     // null값을 전달하면 현재 프로그램의 포인터를 반환해줌
     HINSTANCE hInstance = GetModuleHandle(nullptr);
-    WNDCLASS wc = { };
 
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;       // 프로그램 포인터
-    wc.lpszClassName = className.c_str();
+    // 창 생성
+    Craft::Win32Window window(width, height, hInstance, WindowProc);
 
-    // 클래스 등록
-    if (!RegisterClass(&wc))
+    // 초기화 (초기화 실패 시 프로그램 종료)
+    if (!window.Initialize())
     {
-        return 0;
+        return -1;
     }
-
-    // 창 크기 구하기
-    RECT rect;
-    rect.left = 0;
-    rect.top = 0;
-    rect.right = width;
-    rect.bottom = height;
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-
-    // 창 크기
-    uint32_t windowWidth = rect.right - rect.left;
-    uint32_t windowHeight = rect.bottom - rect.top;
-
-    // 창 생성 위치 가운데로 (좌상단의 위치를 구함)
-    uint32_t positionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
-    uint32_t positionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
-
-    // 창 객체 생성
-    HWND hwnd = CreateWindow(
-        className.c_str(),       // Window class
-        title.c_str(),           // Window text
-        WS_OVERLAPPEDWINDOW,     // Window style
-
-        // 위치 및 크기
-        positionX, positionY, windowWidth, windowHeight,
-
-        nullptr,       // Parent window    
-        nullptr,       // Menu
-        hInstance,     // Instance handle
-        nullptr        // Additional application data
-    );
-
-    // 창 생성 실패
-    if (hwnd == NULL)
-    {
-        return 0;
-    }
-
-    // 창의 클라이언트 크기 구하기
-    //RECT rect;
-    //GetClientRect(hwnd, &rect);
-    
-    // 창 보이기 설정
-    ShowWindow(hwnd, SW_SHOW);
 
     // 창에서 발생하는 메시지 처리 루프 (게임 루프와 비슷함)
     // GetMessage - 동기 방식 (Blocking 방식)
