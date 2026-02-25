@@ -24,7 +24,7 @@ namespace Craft
 		// Getter
 		inline uint32_t Width() const { return width; }
 		inline uint32_t Height() const { return height; }
-		inline HWND GetHandle() const { return handle; }
+		inline HWND Handle() const { return handle; }
 
 	private:
 		// Å¸ÀÌÆ²
