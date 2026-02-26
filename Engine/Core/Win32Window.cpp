@@ -2,8 +2,8 @@
 
 namespace Craft
 {
-	Win32Window::Win32Window(uint32_t width, uint32_t height, HINSTANCE instance, WNDPROC messageProcedure)
-		: width(width), height(height), instance(instance), messageProcedure(messageProcedure)
+	Win32Window::Win32Window(uint32_t width, uint32_t height, const std::wstring& title, HINSTANCE instance, WNDPROC messageProcedure)
+		: width(width), height(height), title(title), instance(instance), messageProcedure(messageProcedure)
 	{
 	}
 

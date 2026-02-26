@@ -24,7 +24,14 @@ namespace Craft
 		~GraphicsContext();
 
 		// 초기화
-		void Initialize(uint32_t width, uint32_t height, const Win32Window& window);
+		void Initialize(const Win32Window& window);
+
+	private:
+		// 장치 생성
+		void CreateDevice();
+		void CreateSwapChain(const Win32Window& window);
+		void CreateViewport(const Win32Window& window);
+
 
 	private:
 		// 장치류
