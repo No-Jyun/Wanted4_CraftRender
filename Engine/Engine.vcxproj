@@ -83,12 +83,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core\Win32Window.cpp" />
+    <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Graphics\GraphicsContext.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Core\Win32Window.h" />
+    <ClInclude Include="Core\Engine.h" />
     <ClInclude Include="Graphics\GraphicsContext.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

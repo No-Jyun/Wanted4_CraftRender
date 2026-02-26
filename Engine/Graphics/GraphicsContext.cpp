@@ -32,6 +32,33 @@ namespace Craft
 		
 		// 뷰포트 생성
 		CreateViewport(window);
+
+		// 렌더 타겟 뷰 생성
+		CreateRenderTargetView();
+
+		// @Incomplete: 우리 엔진에서는 뷰포트를 바꿀 필요가 없음
+		context->RSSetViewports(1, &viewport);
+	}
+
+	void GraphicsContext::BeginScene(float red, float green, float blue)
+	{
+		// 그릴 이미지 준비
+		// 한 색으로 이미지 칠하기
+		// 렌더링 과정을 단순하게 : 빈 도화지 준비 -> 그리기 -> 모니터로 전달
+
+		// 그릴 도화지 설정 (Output Merger)
+		context->OMSetRenderTargets(1, &renderTargetView, nullptr);
+
+		// 빈 도화지로 만들기 -> 한 색상으로 덧칠하기 (내부적으로 memset)
+		// 사용할 배경색
+		float backgroundColor[4] = { red,green,blue,1.0f };
+		context->ClearRenderTargetView(renderTargetView, backgroundColor);
+	}
+
+	void GraphicsContext::EndScene(uint32_t vsync)
+	{
+		// 모니터에 전달 (백버퍼-프론트버퍼 교환)
+		swapChain->Present(0, 0);
 	}
 
 	void GraphicsContext::CreateDevice()
@@ -161,5 +188,44 @@ namespace Craft
 		viewport.Height = static_cast<float>(window.Height());
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
+	}
+
+	void GraphicsContext::CreateRenderTargetView()
+	{
+		// 정석적인 방법
+		// 이미지 속성 설정 구조체
+		// 이걸 기반으로 생성
+
+		// 백버퍼용 렌더 타겟뷰 생성
+		// 스왑체인에서 기본 백버퍼 가지고 있음
+		// 스왑체인에서 버퍼 불러와서 생성 (똑같은 모양으로)
+
+		// 스왑체인에서 얻어올 백버퍼 정보를 저장할 변수
+		ID3D11Texture2D* backbuffer = nullptr;
+		HRESULT result = swapChain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
+
+		// 예외처리
+		if (FAILED(result))
+		{
+			__debugbreak();
+			return;
+		}
+
+		// RTV 생성
+		result = device->CreateRenderTargetView(
+			backbuffer, nullptr, &renderTargetView
+		);
+
+		if (FAILED(result))
+		{
+			// 사용한 리소스 해제
+			SafeRelease(backbuffer);
+
+			__debugbreak();
+			return;
+		}
+
+		// 사용한 리소스 해제
+		SafeRelease(backbuffer);
 	}
 }
