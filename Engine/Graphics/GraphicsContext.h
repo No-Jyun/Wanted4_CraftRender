@@ -39,6 +39,13 @@ namespace Craft
 		// vsync가 0이면 수직 동기화 안함. 1이면 모니터 수직 동기화 사용
 		void EndScene(uint32_t vsync);
 
+		// Getter
+		inline ID3D11Device& GetDevice() const { return *device; }
+		inline ID3D11DeviceContext& GetDeviceContext() const { return *context; }
+
+		// 전역 접근 함수
+		static GraphicsContext& Get();
+
 	private:
 		// 장치 생성
 		void CreateDevice();
@@ -66,5 +73,8 @@ namespace Craft
 		// 화면 크기
 		uint32_t width = 0;
 		uint32_t height = 0;
+
+		// 전역 변수
+		static GraphicsContext* instance;
 	};
 }
