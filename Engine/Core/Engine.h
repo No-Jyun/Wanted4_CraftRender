@@ -43,6 +43,9 @@ namespace Craft
 		// 그래픽스 컨텍스트 객체 (장치 관리 등등)
 		std::unique_ptr<GraphicsContext> grahicsContext;
 
+		// 렌더러 객체 (장면 그리기 담당)
+		std::unique_ptr<class Renderer> renderer;
+
 		// 엔진 설정 변수
 		EngineSetting setting;
 	};

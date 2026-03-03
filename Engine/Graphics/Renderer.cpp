@@ -141,7 +141,7 @@ namespace Craft
 			nullptr,
 			nullptr,
 			"main",
-			"vs_5_0",
+			"ps_5_0",
 			0,
 			0,
 			&pixelShaderObject,
@@ -225,8 +225,29 @@ namespace Craft
 		// 바인딩
 		// -> 셰이더 각 단계에 필요한 정보 전달 및 설정
 		// State 설정
+		auto& context = GraphicsContext::Get().GetDeviceContext();
 		
-		// 드로우 콜
+		// 렌더 커맨드 가져오기
+		RenderCommand& command = renderQueue[0];
 
+		// 정점 배열에서 한 데이터의 너비 (바이트 너비)
+		uint32_t stride = sizeof(float) * 3;
+		uint32_t offset = 0;
+		context.IASetVertexBuffers(0, 1, &command.vertexBuffer, &stride, &offset);
+
+		context.IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		context.IASetInputLayout(command.inputLayout);
+
+		// 점 3개씩 잘라서 읽고, 삼각형을 만들어주는 모드
+		context.IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		// 셰이더 설정
+		context.VSSetShader(command.vertexShader, nullptr, 0);
+		context.PSSetShader(command.pixelShader, nullptr, 0);
+
+		// 드로우 콜
+		// 렌더링 파이프라인 동작
+		context.DrawIndexed(command.indexCount, 0, 0);
 	}
 }
