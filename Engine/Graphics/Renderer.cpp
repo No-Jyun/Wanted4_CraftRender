@@ -100,20 +100,133 @@ namespace Craft
 		}
 
 		// 셰이더 컴파일
-		
+		// 두 번 (VS / PS)
+		ID3DBlob* vertexShaderObject = nullptr;
+		result = D3DCompileFromFile(
+			L"HLSLShader/DefaultVS.hlsl",
+			nullptr,
+			nullptr,
+			"main",
+			"vs_5_0",
+			0,
+			0,
+			&vertexShaderObject,
+			nullptr
+		);
+
+		if (FAILED(result))
+		{
+			__debugbreak();
+			return;
+		}
+
 		// 셰이더 객체 생성
+		ID3D11VertexShader* vertexShader = nullptr;
+		device.CreateVertexShader(
+			vertexShaderObject->GetBufferPointer(),
+			vertexShaderObject->GetBufferSize(),
+			nullptr,
+			&vertexShader
+		);
+
+		if (FAILED(result))
+		{
+			__debugbreak();
+			return;
+		}
+
+		ID3DBlob* pixelShaderObject = nullptr;
+		result = D3DCompileFromFile(
+			L"HLSLShader/DefaultPS.hlsl",
+			nullptr,
+			nullptr,
+			"main",
+			"vs_5_0",
+			0,
+			0,
+			&pixelShaderObject,
+			nullptr
+		);
+
+		if (FAILED(result))
+		{
+			__debugbreak();
+			return;
+		}
+
+		// 셰이더 객체 생성
+		ID3D11PixelShader* pixelShader = nullptr;
+		device.CreatePixelShader(
+			pixelShaderObject->GetBufferPointer(),
+			pixelShaderObject->GetBufferSize(),
+			nullptr,
+			&pixelShader
+		);
+
+		if (FAILED(result))
+		{
+			__debugbreak();
+			return;
+		}
 
 		// 입력 레이아웃 생성
+		/*
+			_In_reads_(NumElements)  const D3D11_INPUT_ELEMENT_DESC *pInputElementDescs,
+			_In_range_(0, D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT)  UINT NumElements,
+			_In_reads_(BytecodeLength)  const void* pShaderBytecodeWithInputSignature,
+			_In_  SIZE_T BytecodeLength,
+			_COM_Outptr_opt_  ID3D11InputLayout** ppInputLayout) = 0;
+		*/
+
+		/*
+			LPCSTR SemanticName;
+			UINT SemanticIndex;
+			DXGI_FORMAT Format;
+			UINT InputSlot;
+			UINT AlignedByteOffset;
+			D3D11_INPUT_CLASSIFICATION InputSlotClass;
+			UINT InstanceDataStepRate;
+		*/
+		D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+		{
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
+
+		// 입력 레이아웃 = 정점 셰이더 입력의 명세서
+		// 따라서 정점 셰이더 정보가 있어야 함
+		ID3D11InputLayout* inputLayout = nullptr;
+		result = device.CreateInputLayout(
+			inputDesc,
+			_countof(inputDesc),
+			vertexShaderObject->GetBufferPointer(),
+			vertexShaderObject->GetBufferSize(),
+			&inputLayout
+		);
 
 		// 렌더 큐 추가
 		RenderCommand command;
 		command.vertexBuffer = vertexBuffer;
 		command.indexBuffer = indexBuffer;
 		command.indexCount = _countof(indices);
+		command.vertexShader = vertexShader;
+		command.pixelShader = pixelShader;
+		command.inputLayout = inputLayout;
+
+		renderQueue.emplace_back(command);
+
+		// 사용한 리소스 해제
+		SafeRelease(vertexShaderObject);
+		SafeRelease(pixelShaderObject);
 	}
 
 	void Renderer::DrawScene()
 	{
+		// 바인딩
+		// -> 셰이더 각 단계에 필요한 정보 전달 및 설정
+		// State 설정
+		
+		// 드로우 콜
 
 	}
 }
